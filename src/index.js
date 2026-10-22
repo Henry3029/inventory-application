@@ -34,6 +34,52 @@ app.get('/', async (req, res) => {
                                                                                      res.status(500).send('Error retrieving games from database');
                                                                                        }
                                                                                        });
+                                                                                       
+ // 1. Show the "Add Game" form
+app.get('/games/new', async (req, res) => {
+  try {
+    // Fetch genres and platforms so the user can pick them from dropdowns
+    const genresResult = await pool.query('SELECT * FROM genres ORDER BY name ASC');
+    const platformsResult = await pool.query('SELECT * FROM platforms ORDER BY name ASC');
+
+    res.render('new-game', { 
+      title: 'Add New Game', 
+      genres: genresResult.rows, 
+      platforms: platformsResult.rows 
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Error loading form');
+  }
+});
+
+// 2. Handle form submission and insert into database
+app.post('/games', async (req, res) => {
+  try {
+    const { title, release_year, rating, genre_id, platform_id } = req.body;
+
+    const query = `
+      INSERT INTO games (title, release_year, rating, genre_id, platform_id)
+      VALUES ($1, $2, $3, $4, $5);
+    `;
+
+    // Using parameterized queries ($1, $2, etc.) protects your database against SQL injection!
+    await pool.query(query, [
+      title, 
+      release_year || null, 
+      rating || null, 
+      genre_id || null, 
+      platform_id || null
+    ]);
+
+    // Redirect back to the homepage to see the new game
+    res.redirect('/');
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Error saving game to database');
+  }
+});
+
 
 
                           app.listen(PORT, () => {
