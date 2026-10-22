@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+    <title><%= title %></title>
+    </head>
+    <body>
+      <h1>🎮 <%= title %></h1>
+        
+          <hr>
+
+            <h2>Game List</h2>
+              <% if (games.length === 0) { %>
+                  <p>No games found in the inventory yet.</p>
+                    <% } else { %>
+                        <table border="1" cellpadding="10" cellspacing="0">
+                              <thead>
+                                      <tr>
+                                                <th>Title</th>
+                                                          <th>Release Year</th>
+                                                                    <th>Rating</th>
+                                                                              <th>Genre</th>
+                                                                                        <th>Platform</th>
+                                                                                                </tr>
+                                                                                                      </thead>
+                                                                                                            <tbody>
+                                                                                                                    <% games.forEach(game => { %>
+                                                                                                                              <tr>
+                                                                                                                                          <td><strong><%= game.title %></strong></td>
+                                                                                                                                                      <td><%= game.release_year %></td>
+                                                                                                                                                                  <td>⭐ <%= game.rating %>/10</td>
+                                                                                                                                                                              <td><%= game.genre_name || 'N/A' %></td>
+                                                                                                                                                                                          <td><%= game.platform_name || 'N/A' %></td>
+                                                                                                                                                                                                    </tr>
+                                                                                                                                                                                                            <% }) %>
+                                                                                                                                                                                                                  </tbody>
+                                                                                                                                                                                                                      </table>
+                                                                                                                                                                                                                        <% } %>
+                                                                                                                                                                                                                        </body>
+                                                                                                                                                                                                                        </html>
+                                                                                                                                                                                                                        
