@@ -1,0 +1,31 @@
+{
+  "name": "inventory-application",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+      "start": "node src/index.js",
+        "dev": "node --watch src/index.js"
+        },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Henry3029/inventory-application.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "bugs": {
+    "url": "https://github.com/Henry3029/inventory-application/issues"
+  },
+  "homepage": "https://github.com/Henry3029/inventory-application#readme",
+  "dependencies": {
+    "dotenv": "^18.0.8",
+    "ejs": "^7.0.2",
+    "express": "^5.3.0",
+    "pg": "^8.23.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.14"
+  }
+}
