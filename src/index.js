@@ -184,6 +184,19 @@ app.post('/games/:id/update', async (req, res) => {
   }
 });
 
+// Delete a game by its ID
+app.post('/games/:id/delete', async (req, res) => {
+  try {
+    const { id } = req.params;
+    await pool.query('DELETE FROM games WHERE id = $1', [id]);
+    res.redirect('/');
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Error deleting game');
+  }
+});
+
+
 
 
                           app.listen(PORT, () => {
