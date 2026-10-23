@@ -13,6 +13,110 @@ app.set('views', path.join(__dirname, '../views'));
 app.set('view engine', 'ejs');
 app.use(express.urlencoded({ extended: true }));
 
+// View a single game's detail page
+app.get('/games/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const query = `
+      SELECT games.*, genres.name AS genre_name, platforms.name AS platform_name
+      FROM games
+      LEFT JOIN genres ON games.genre_id = genres.id
+      LEFT JOIN platforms ON games.platform_id = platforms.id
+      WHERE games.id = $1;
+    `;
+    const { rows } = await pool.query(query, [id]);
+    
+    if (rows.length === 0) {
+      return res.status(404).send('Game not found');
+    }
+
+    res.render('game-detail', { title: rows[0].title, game: rows[0] });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Error loading game details');
+  }
+});
+
+// View all games in a specific genre category
+app.get('/genres/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    // Get genre details
+    const genreQuery = await pool.query('SELECT * FROM genres WHERE id = $1', [id]);
+    if (genreQuery.rows.length === 0) return res.status(404).send('Genre not found');
+    
+    // Get all games belonging to this genre
+    const gamesQuery = `
+      SELECT games.*, platforms.name AS platform_name 
+      FROM games 
+      LEFT JOIN platforms ON games.platform_id = platforms.id 
+      WHERE games.genre_id = $1;
+    `;
+    const gamesResult = await pool.query(gamesQuery, [id]);
+
+    res.render('genre-detail', { 
+      genre: genreQuery.rows[0], 
+      games: gamesResult.rows,
+      title: `${genreQuery.rows[0].name} Games`
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Error loading category view');
+  }
+});
+
+// 1. Show the Edit Form pre-filled with existing game data
+app.get('/games/:id/edit', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const gameResult = await pool.query('SELECT * FROM games WHERE id = $1', [id]);
+    const genresResult = await pool.query('SELECT * FROM genres ORDER BY name ASC');
+    const platformsResult = await pool.query('SELECT * FROM platforms ORDER BY name ASC');
+
+    if (gameResult.rows.length === 0) return res.status(404).send('Game not found');
+
+    res.render('edit-game', {
+      title: `Edit ${gameResult.rows[0].title}`,
+      game: gameResult.rows[0],
+      genres: genresResult.rows,
+      platforms: platformsResult.rows
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Error loading edit form');
+  }
+});
+
+// 2. Handle the update submission
+app.post('/games/:id/update', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { title, release_year, rating, genre_id, platform_id } = req.body;
+
+    const query = `
+      UPDATE games 
+      SET title = $1, release_year = $2, rating = $3, genre_id = $4, platform_id = $5
+      WHERE id = $6;
+    `;
+
+    await pool.query(query, [
+      title, 
+      release_year || null, 
+      rating || null, 
+      genre_id || null, 
+      platform_id || null, 
+      id
+    ]);
+
+    res.redirect(`/games/${id}`);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Error updating game');
+  }
+});
+
+
 app.get('/', async (req, res) => {
     try {
         // Query games and join them with genres and platforms so we get readable names instead of raw IDs
