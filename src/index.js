@@ -160,7 +160,13 @@ app.get('/games/:id/edit', async (req, res) => {
 app.post('/games/:id/update', async (req, res) => {
   try {
     const { id } = req.params;
-    const { title, release_year, rating, genre_id, platform_id } = req.body;
+    const { title, release_year, rating, genre_id, platform_id, admin_password } = req.body;
+   
+  // 🔒 Check if password matches
+    if (admin_password !== process.env.ADMIN_PASSWORD) {
+      return res.status(403).send('Access Denied: Incorrect Admin Password! <a href="/games/' + id + '/edit">Go Back</a>');
+    }
+   	
 
     const query = `
       UPDATE games 
@@ -188,6 +194,12 @@ app.post('/games/:id/update', async (req, res) => {
 app.post('/games/:id/delete', async (req, res) => {
   try {
     const { id } = req.params;
+    const { admin_password } = req.body;
+
+    //  Check if password matches
+    if (admin_password !== process.env.ADMIN_PASSWORD) {
+      return res.status(403).send('Access Denied: Incorrect Admin Password! <a href="/games/' + id + '">Go Back</a>');
+    }
     await pool.query('DELETE FROM games WHERE id = $1', [id]);
     res.redirect('/');
   } catch (err) {
