@@ -6,7 +6,7 @@
   "scripts": {
       "start": "node src/index.js",
         "dev": "node --watch src/index.js",
-        "seed": "node src/db/populatedb.js"
+        "seed": "node src/db/resetdb.js"
         },
   "repository": {
     "type": "git",
